@@ -56,7 +56,7 @@ class QApi(object):
         if 'user' in proxy_dict and 'password' in proxy_dict:
             auth_data = '{user}:{password}@'.format(**proxy_dict)
 
-        return '{type}:{auth_data}{ip}:{port}'.format(auth_data=auth_data, **proxy_dict)
+        return '{type}://{auth_data}{ip}:{port}'.format(auth_data=auth_data, **proxy_dict)
 
 
     @property
