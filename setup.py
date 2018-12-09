@@ -8,6 +8,6 @@ setup(
     description='QIWI API for Humans',
     long_description='See https://github.com/Emberium/SimpleQIWI',
     url='https://github.com/Emberium/SimpleQIWI',
-    install_requires=['requests', 'uuid'],
+    install_requires=['requests[socks]', 'uuid'],
     packages=['SimpleQIWI']
 )

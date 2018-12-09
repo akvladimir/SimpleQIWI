@@ -10,13 +10,14 @@ import time
 
 class QApi(object):
 
-    def __init__(self, token, phone, delay=1):
+    def __init__(self, token, phone, delay=1, proxy=None):
         """
         Class init
 
         :type token: str
         :type phone: str
         :type delay: int
+        :type proxy: dict {'ip':'', port: '', 'type':'socks5|4', 'user':'', password:''}
 
         :param token: QIWI API token
         :param phone: Your phone [required for pay() function]
@@ -38,6 +39,25 @@ class QApi(object):
         self.delay = delay
 
         self.thread = False
+
+        self.proxy = None
+
+        if proxy:
+            proxy_str = self._get_proxy(proxy)
+
+            self.proxy = {
+                'http': proxy_str,
+                'https': proxy_str
+            }
+
+    def _get_proxy(self, proxy_dict):
+        auth_data = ''
+
+        if 'user' in proxy_dict and 'password' in proxy_dict:
+            auth_data = '{user}:{password}@'.format(**proxy_dict)
+
+        return '{type}:{auth_data}{ip}:{port}'.format(auth_data=auth_data, **proxy_dict)
+
 
     @property
     def _transaction_id(self):
@@ -120,7 +140,7 @@ class QApi(object):
         :return: balance (dict)
         """
 
-        response = self._s.get('https://edge.qiwi.com/funding-sources/v1/accounts/current')
+        response = self._s.get('https://edge.qiwi.com/funding-sources/v1/accounts/current', proxies=self.proxy)
 
         if response is None:
             raise InvalidTokenError('Invalid token!')
@@ -158,7 +178,8 @@ class QApi(object):
 
         response = self._s.get(
             url='https://edge.qiwi.com/payment-history/v1/persons/%s/payments' % self.phone,
-            params=post_args
+            params=post_args,
+            proxies=self.proxy
         )
 
         data = response.json()
@@ -224,7 +245,8 @@ class QApi(object):
 
         response = self._s.post(
             url='https://edge.qiwi.com/sinap/api/v2/terms/99/payments',
-            json=post_args
+            json=post_args,
+            proxies=self.proxy
         )
 
         data = response.json()
